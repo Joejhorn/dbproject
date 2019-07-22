@@ -1,6 +1,6 @@
 import os
 from forms import AddForm, DelForm, AddOwner
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -65,6 +65,7 @@ def add_pup():
         new_pup = Puppy(name)
         db.session.add(new_pup)
         db.session.commit()
+        flash(f"You just added a puppy {name.capitalize()}")
         return redirect(url_for('list_pup'))
 
     return render_template('add.html', form=form)
@@ -84,6 +85,7 @@ def del_pup():
         pup = Puppy.query.get(id)
         db.session.delete(pup)
         db.session.commit()
+        flash(f"You just deleted puppy: {pup.name.capitalize()}")
 
         return redirect(url_for('list_pup'))
     return render_template('delete.html', form=form)
@@ -95,10 +97,11 @@ def add_owner():
     if form.validate_on_submit():
         pup_id = form.pup_id.data
         name = form.name.data
-
         new_owner = Owner(name, pup_id)
         db.session.add(new_owner)
         db.session.commit()
+        pup_name = Puppy.query.get(pup_id)
+        flash(f"You just added {name.capitalize()} as the owner of {pup_name.name}")
         return redirect(url_for('list_pup'))
     return render_template('addOwner.html', form=form)
 
